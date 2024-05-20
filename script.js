@@ -7,7 +7,6 @@ const drawButton = document.getElementById("drawButton");
 const resetButton = document.getElementById("resetButton");
 const randomizeColorsButton = document.getElementById("randomizeColorsButton");
 const baseColorInput = document.getElementById("baseColor");
-const blendColorsCheckbox = document.getElementById("blendColors");
 const loading = document.getElementById("loading");
 
 let zoom = parseFloat(initialZoomInput.value);
@@ -17,7 +16,7 @@ let maxIterations = parseInt(maxIterationsInput.value);
 let resolution = parseInt(resolutionInput.value);
 
 canvas.width = resolution;
-canvas.height = resolution * 0.75; // 4:3 aspect ratio
+canvas.height = resolution * 0.5625; // 16:9 aspect ratio
 
 const worker = new Worker("mandelbrotWorker.js");
 
@@ -52,7 +51,7 @@ resetButton.addEventListener("click", () => {
   maxIterations = parseInt(maxIterationsInput.value);
   resolution = parseInt(resolutionInput.value);
   canvas.width = resolution;
-  canvas.height = resolution * 0.75; // 4:3 aspect ratio
+  canvas.height = resolution * 0.5625; // 16:9 aspect ratio
   drawMandelbrot();
 });
 
@@ -86,6 +85,7 @@ function generateRandomColors(useBase = false) {
       randomColors.push(hexToRgb(getRandomColor()));
     }
   }
+  console.log("Random Colors: ", randomColors);
 }
 
 function mandelbrot(c) {
@@ -115,26 +115,15 @@ function interpolateColor(color1, color2, factor) {
   return result;
 }
 
-function getColor(n, maxIterations, zoomLevel) {
+function getColor(n, maxIterations) {
   const t = n / maxIterations;
-  const blendColors = blendColorsCheckbox.checked;
   const numColors = randomColors.length;
-
-  let color;
-  if (blendColors) {
-    const zoomFactor = Math.log(zoomLevel) / Math.log(2);
-    randomColors[0] = interpolateColor(
-      randomColors[0],
-      [255, 255, 255],
-      zoomFactor % 1
-    );
-  }
 
   const colorIndex = Math.floor(t * (numColors - 1));
   const nextColorIndex = (colorIndex + 1) % numColors;
   const localT = t * (numColors - 1) - colorIndex;
 
-  color = interpolateColor(
+  const color = interpolateColor(
     randomColors[colorIndex],
     randomColors[nextColorIndex],
     localT
@@ -157,7 +146,6 @@ function drawMandelbrot() {
     offsetY,
     maxIterations,
     baseColor: baseColorInput.value,
-    blendColors: blendColorsCheckbox.checked,
     randomColors,
   });
 }
@@ -167,7 +155,7 @@ drawButton.addEventListener("click", () => {
   resolution = parseInt(resolutionInput.value);
   zoom = parseFloat(initialZoomInput.value);
   canvas.width = resolution;
-  canvas.height = resolution * 0.5625; // 4:3 aspect ratio
+  canvas.height = resolution * 0.5625; // 16:9 aspect ratio
   drawMandelbrot();
 });
 

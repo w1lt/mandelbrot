@@ -11,32 +11,15 @@ function interpolateColor(color1, color2, factor) {
   return result;
 }
 
-function getColor(
-  n,
-  maxIterations,
-  zoomLevel,
-  baseColor,
-  blendColors,
-  randomColors
-) {
+function getColor(n, maxIterations, randomColors) {
   const t = n / maxIterations;
   const numColors = randomColors.length;
-
-  let color;
-  if (blendColors) {
-    const zoomFactor = Math.log(zoomLevel) / Math.log(2);
-    randomColors[0] = interpolateColor(
-      randomColors[0],
-      [255, 255, 255],
-      zoomFactor % 1
-    );
-  }
 
   const colorIndex = Math.floor(t * (numColors - 1));
   const nextColorIndex = (colorIndex + 1) % numColors;
   const localT = t * (numColors - 1) - colorIndex;
 
-  color = interpolateColor(
+  const color = interpolateColor(
     randomColors[colorIndex],
     randomColors[nextColorIndex],
     localT
@@ -60,17 +43,8 @@ function mandelbrot(c, maxIterations) {
 }
 
 self.onmessage = function (e) {
-  const {
-    width,
-    height,
-    zoom,
-    offsetX,
-    offsetY,
-    maxIterations,
-    baseColor,
-    blendColors,
-    randomColors,
-  } = e.data;
+  const { width, height, zoom, offsetX, offsetY, maxIterations, randomColors } =
+    e.data;
   const imageData = new Uint8ClampedArray(width * height * 4);
 
   for (let x = 0; x < width; x++) {
@@ -81,14 +55,7 @@ self.onmessage = function (e) {
       };
 
       const m = mandelbrot(c, maxIterations);
-      const color = getColor(
-        m,
-        maxIterations,
-        zoom,
-        baseColor,
-        blendColors,
-        randomColors
-      );
+      const color = getColor(m, maxIterations, randomColors);
 
       const index = (x + y * width) * 4;
       const [r, g, b] = color.match(/\d+/g).map(Number);
