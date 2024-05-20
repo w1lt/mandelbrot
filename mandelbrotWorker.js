@@ -10,7 +10,15 @@ self.onmessage = function (e) {
     maxIterations,
     randomColors,
   } = e.data;
-  const imageData = new Uint8ClampedArray(width * (endRow - startRow) * 4);
+
+  // Calculate the number of rows to render
+  const rowCount = endRow - startRow;
+
+  if (rowCount <= 0) {
+    return; // Do nothing if endRow is not greater than startRow
+  }
+
+  const imageData = new Uint8ClampedArray(width * rowCount * 4);
 
   for (let x = 0; x < width; x++) {
     for (let y = startRow; y < endRow; y++) {

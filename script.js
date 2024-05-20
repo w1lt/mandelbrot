@@ -30,24 +30,23 @@ worker.onmessage = function (e) {
   }
 };
 
-canvas.addEventListener("click", (e) => {
+canvas.addEventListener("mousedown", (e) => {
+  e.preventDefault();
+
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
+  const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
+  const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
+
   if (e.button === 2) {
     // Right click
-    const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
-    const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
-
     zoom /= 2;
     offsetX = cx - (cx - offsetX) / 2;
     offsetY = cy - (cy - offsetY) / 2;
   } else {
     // Left click
-    const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
-    const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
-
     zoom *= 2;
     offsetX = cx;
     offsetY = cy;
@@ -58,7 +57,10 @@ canvas.addEventListener("click", (e) => {
 });
 
 // Disable context menu on right-click
-canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+canvas.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  return false;
+});
 
 resetButton.addEventListener("click", () => {
   zoom = 1;
@@ -117,7 +119,6 @@ function generateRandomColors(useBase = false) {
       randomColors.push(hexToRgb(getRandomColor()));
     }
   }
-  console.log("Random Colors: ", randomColors);
 }
 
 function hexToRgb(hex) {
