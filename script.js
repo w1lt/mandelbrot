@@ -35,15 +35,30 @@ canvas.addEventListener("click", (e) => {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
-  const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
+  if (e.button === 2) {
+    // Right click
+    const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
+    const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
 
-  zoom *= 2;
-  offsetX = cx;
-  offsetY = cy;
+    zoom /= 2;
+    offsetX = cx - (cx - offsetX) / 2;
+    offsetY = cy - (cy - offsetY) / 2;
+  } else {
+    // Left click
+    const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
+    const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
+
+    zoom *= 2;
+    offsetX = cx;
+    offsetY = cy;
+  }
+
   initialZoomInput.value = zoom.toFixed(2);
   drawMandelbrot();
 });
+
+// Disable context menu on right-click
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
 resetButton.addEventListener("click", () => {
   zoom = 1;

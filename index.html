@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mandelbrot Set Visualizer</title>
+    <title>Interactive Mandelbrot Set</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="img.png" />
   </head>
   <body>
     <div class="container">
-      <h1>Mandelbrot Set Visualizer</h1>
-      <div>Click to zoom in</div>
+      <h1>Interactive Mandelbrot Set</h1>
+
       <div class="content">
         <div class="controls">
           <label for="baseColor">Base Color:</label>
@@ -41,12 +41,16 @@
             min="0.1"
             max="10"
           />
+          <br />
           <button id="drawButton">Re-Draw</button>
           <button id="resetButton">Reset</button>
           <button id="randomizeColorsButton">Randomize Colors</button>
         </div>
-        <canvas id="mandelbrotCanvas"></canvas>
+        <div>
+          <canvas id="mandelbrotCanvas"></canvas>
+        </div>
       </div>
+      <div style="text-align: center">Click anywhere to zoom in further</div>
 
       <h2>About</h2>
       <div class="about">
@@ -78,10 +82,18 @@
           </p>
         </div>
       </div>
+      <h2>Main Components of the Set</h2>
+      <img
+        src="https://www.zazow.com/img/mandelbrot/mandelbrot_parts.jpg"
+        alt=""
+        width="50%"
+      />
+      <p>Credit: Zazow.com</p>
+      <hr />
       <footer>
         <p>
-          &copy;2024
-          <a href="https://whitehead.wiki/" target="_blank">Will Whitehead</a> |
+          &copy; 2024
+          <a href="https://whitehead.wiki/" target="_blank">Will Whitehead</a> -
           <a href="https://github.com/w1lt/mandelbrot" target="_blank"
             >Source Code</a
           >
