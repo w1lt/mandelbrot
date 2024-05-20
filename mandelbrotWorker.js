@@ -1,47 +1,3 @@
-function hexToRgb(hex) {
-  const bigint = parseInt(hex.slice(1), 16);
-  return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
-}
-
-function interpolateColor(color1, color2, factor) {
-  const result = color1.slice();
-  for (let i = 0; i < 3; i++) {
-    result[i] = Math.round(result[i] + factor * (color2[i] - result[i]));
-  }
-  return result;
-}
-
-function getColor(n, maxIterations, randomColors) {
-  const t = n / maxIterations;
-  const numColors = randomColors.length;
-
-  const colorIndex = Math.floor(t * (numColors - 1));
-  const nextColorIndex = (colorIndex + 1) % numColors;
-  const localT = t * (numColors - 1) - colorIndex;
-
-  const color = interpolateColor(
-    randomColors[colorIndex],
-    randomColors[nextColorIndex],
-    localT
-  );
-
-  return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-}
-
-function mandelbrot(c, maxIterations) {
-  let z = { x: 0, y: 0 };
-  let n = 0;
-
-  while (n < maxIterations && z.x * z.x + z.y * z.y <= 4) {
-    const xTemp = z.x * z.x - z.y * z.y + c.x;
-    z.y = 2 * z.x * z.y + c.y;
-    z.x = xTemp;
-    n++;
-  }
-
-  return n;
-}
-
 self.onmessage = function (e) {
   const {
     width,
@@ -67,7 +23,7 @@ self.onmessage = function (e) {
       const color = getColor(m, maxIterations, randomColors);
 
       const index = (x + (y - startRow) * width) * 4;
-      const [r, g, b] = color.match(/\d+/g).map(Number);
+      const [r, g, b] = color;
 
       imageData[index] = r;
       imageData[index + 1] = g;
@@ -78,3 +34,44 @@ self.onmessage = function (e) {
 
   self.postMessage({ imageData, width, height, startRow, endRow });
 };
+
+function mandelbrot(c, maxIterations) {
+  let z = { x: 0, y: 0 };
+  let n = 0;
+
+  while (n < maxIterations && z.x * z.x + z.y * z.y <= 4) {
+    const xTemp = z.x * z.x - z.y * z.y + c.x;
+    z.y = 2 * z.x * z.y + c.y;
+    z.x = xTemp;
+    n++;
+  }
+
+  return n;
+}
+
+function interpolateColor(color1, color2, factor) {
+  const result = color1.slice();
+  for (let i = 0; i < 3; i++) {
+    result[i] = Math.round(result[i] + factor * (color2[i] - result[i]));
+  }
+  return result;
+}
+
+function getColor(n, maxIterations, randomColors) {
+  if (n === maxIterations) {
+    return [0, 0, 0]; // Black for points within the Mandelbrot set
+  }
+
+  const t = n / maxIterations;
+  const numColors = randomColors.length;
+
+  const colorIndex = Math.floor(t * (numColors - 1));
+  const nextColorIndex = (colorIndex + 1) % numColors;
+  const localT = t * (numColors - 1) - colorIndex;
+
+  return interpolateColor(
+    randomColors[colorIndex],
+    randomColors[nextColorIndex],
+    localT
+  );
+}
