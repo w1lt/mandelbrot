@@ -15,17 +15,18 @@
           <input type="color" id="baseColor" value="#0000FF" />
           <label for="maxIterations">Max Iterations:</label>
           <input
-            type="number"
+            type="range"
             id="maxIterations"
-            value="100"
-            min="100"
+            value="1000"
+            min="1"
             max="10000"
           />
+          <span id="maxIterationsValue">1000</span>
           <label for="resolution">Resolution:</label>
           <input
             type="number"
             id="resolution"
-            value="800"
+            value="600"
             min="100"
             max="4000"
           />
@@ -38,13 +39,45 @@
             min="0.1"
             max="10"
           />
-
           <button id="drawButton">Re-Draw</button>
           <button id="resetButton">Reset</button>
           <button id="randomizeColorsButton">Randomize Colors</button>
         </div>
         <canvas id="mandelbrotCanvas"></canvas>
       </div>
+      <h2>About</h2>
+      <div class="about">
+        <div>
+          <p>
+            The Mandelbrot set is the set of complex numbers c for which the
+            function f(z) = z^2 + c does not diverge when iterated from z = 0.
+            This means that, given a complex number c, we can plug it into the
+            function f(z) and get a new complex number. We can then plug that
+            number back into the function and get another number, and so on. If
+            the sequence of numbers we get from this process stays bounded, then
+            c is in the Mandelbrot set. If the sequence diverges, then c is not
+            in the Mandelbrot set. Here is a great
+            <a href="https://www.youtube.com/watch?v=FFftmWSzgmk">video</a> that
+            explains the Mandelbrot set in more detail.
+          </p>
+          <p>
+            This visualizer allows you to explore the Mandelbrot set by changing
+            the base color, max iterations, resolution, and zoom level. You can
+            also randomize the colors to get a different look each time.
+          </p>
+        </div>
+        <img
+          src="https://miro.medium.com/v2/resize:fit:792/1*xe0ATAxrySiY1gNMlQg9Fw.jpeg"
+          alt=""
+          width="20%"
+        />
+      </div>
+      <footer>
+        <p>
+          &copy; 2024
+          <a href="https://linked.whitehead.wiki/">Will Whitehead</a>
+        </p>
+      </footer>
       <div id="loading">Loading...</div>
     </div>
     <script src="script.js"></script>

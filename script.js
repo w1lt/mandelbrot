@@ -1,6 +1,7 @@
 const canvas = document.getElementById("mandelbrotCanvas");
 const ctx = canvas.getContext("2d");
 const maxIterationsInput = document.getElementById("maxIterations");
+const maxIterationsValue = document.getElementById("maxIterationsValue");
 const resolutionInput = document.getElementById("resolution");
 const initialZoomInput = document.getElementById("initialZoom");
 const drawButton = document.getElementById("drawButton");
@@ -21,16 +22,19 @@ canvas.height = resolution * 0.5625; // 16:9 aspect ratio
 const worker = new Worker("mandelbrotWorker.js");
 
 worker.onmessage = function (e) {
-  const { imageData, width, height } = e.data;
-  const imgData = new ImageData(imageData, width, height);
-  ctx.putImageData(imgData, 0, 0);
-  loading.style.display = "none";
+  const { imageData, width, height, startRow, endRow } = e.data;
+  const imgData = new ImageData(imageData, width, endRow - startRow);
+  ctx.putImageData(imgData, 0, startRow);
+  if (endRow >= height) {
+    loading.style.display = "none";
+  }
 };
 
 canvas.addEventListener("click", (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
+
   const cx = (x / canvas.width - 0.5) * (3.5 / zoom) + offsetX;
   const cy = (y / canvas.height - 0.5) * (2 / zoom) + offsetY;
 
@@ -65,6 +69,12 @@ baseColorInput.addEventListener("input", () => {
   drawMandelbrot();
 });
 
+maxIterationsInput.addEventListener("input", () => {
+  maxIterations = parseInt(maxIterationsInput.value);
+  maxIterationsValue.textContent = maxIterations;
+  drawMandelbrot();
+});
+
 function getRandomColor() {
   const letters = "0123456789ABCDEF";
   let color = "#";
@@ -86,20 +96,6 @@ function generateRandomColors(useBase = false) {
     }
   }
   console.log("Random Colors: ", randomColors);
-}
-
-function mandelbrot(c) {
-  let z = { x: 0, y: 0 };
-  let n = 0;
-
-  while (n < maxIterations && z.x * z.x + z.y * z.y <= 4) {
-    const xTemp = z.x * z.x - z.y * z.y + c.x;
-    z.y = 2 * z.x * z.y + c.y;
-    z.x = xTemp;
-    n++;
-  }
-
-  return n;
 }
 
 function hexToRgb(hex) {
@@ -138,16 +134,34 @@ function drawMandelbrot() {
 
   loading.style.display = "block";
 
-  worker.postMessage({
-    width,
-    height,
-    zoom,
-    offsetX,
-    offsetY,
-    maxIterations,
-    baseColor: baseColorInput.value,
-    randomColors,
-  });
+  // Incremental rendering: divide the image into chunks
+  const chunkSize = 50; // Number of rows per chunk
+  let currentChunk = 0;
+
+  function renderChunk() {
+    const startRow = currentChunk * chunkSize;
+    const endRow = Math.min((currentChunk + 1) * chunkSize, height);
+
+    worker.postMessage({
+      width,
+      height,
+      startRow,
+      endRow,
+      zoom,
+      offsetX,
+      offsetY,
+      maxIterations,
+      baseColor: baseColorInput.value,
+      randomColors,
+    });
+
+    currentChunk++;
+    if (startRow < height) {
+      requestAnimationFrame(renderChunk);
+    }
+  }
+
+  renderChunk();
 }
 
 drawButton.addEventListener("click", () => {

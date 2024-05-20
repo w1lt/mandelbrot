@@ -43,12 +43,21 @@ function mandelbrot(c, maxIterations) {
 }
 
 self.onmessage = function (e) {
-  const { width, height, zoom, offsetX, offsetY, maxIterations, randomColors } =
-    e.data;
-  const imageData = new Uint8ClampedArray(width * height * 4);
+  const {
+    width,
+    height,
+    startRow,
+    endRow,
+    zoom,
+    offsetX,
+    offsetY,
+    maxIterations,
+    randomColors,
+  } = e.data;
+  const imageData = new Uint8ClampedArray(width * (endRow - startRow) * 4);
 
   for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
+    for (let y = startRow; y < endRow; y++) {
       const c = {
         x: (x / width - 0.5) * (3.5 / zoom) + offsetX,
         y: (y / height - 0.5) * (2 / zoom) + offsetY,
@@ -57,7 +66,7 @@ self.onmessage = function (e) {
       const m = mandelbrot(c, maxIterations);
       const color = getColor(m, maxIterations, randomColors);
 
-      const index = (x + y * width) * 4;
+      const index = (x + (y - startRow) * width) * 4;
       const [r, g, b] = color.match(/\d+/g).map(Number);
 
       imageData[index] = r;
@@ -67,5 +76,5 @@ self.onmessage = function (e) {
     }
   }
 
-  self.postMessage({ imageData, width, height });
+  self.postMessage({ imageData, width, height, startRow, endRow });
 };
